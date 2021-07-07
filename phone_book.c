@@ -332,7 +332,7 @@ int search( FILE *db_file, char* name)
 			//printf("IN\n");
 			printf("%s\n",p->phone);
 			found=1;
-			break;
+			p=p->next;
 		}
 		else
 			p=p->next;

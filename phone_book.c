@@ -113,6 +113,7 @@ FILE *open_db_file()
     perror("Couldn't open database file");
     exit(1);
   }
+  //printf("opened\n");
   return fp;
 }
   
@@ -183,24 +184,47 @@ entry *load_entries(FILE *fp)
 
     %20[^,\n] will match a string of characters with a maximum length
      of 20 characters that doesn't have a comma(,) or a newline(\n).
-  */        
+  */   
+  int count=-1;   
   while (fscanf(fp, "%20[^,\n],%20[^,\n]\n", name, phone) != EOF) 
   {
     tmp = create_entry_node(name, phone);
+    //printf("tmp %s\t%s\t%p\n",tmp->name,tmp->phone,tmp->next);
+    count++;
     if (ret == NULL)
       {
       	ret = tmp;
-      	current=ret;
+      	//ret->next=tmp->next;
+      	//current->next=ret->next;
+      	current=tmp;
       }
     else
      /* //previously 
      current->next = tmp;
     current = tmp;*/
+    	if(count==1)
     	{
-    		current->next = tmp;
-    		current = tmp;
+    		ret->next=tmp;
+    		current->next=tmp;
+    		current=tmp;	
     	}
+    	else
+    	{
+    		current->next=tmp;
+    		current=tmp;
+    	}
+    //printf("current %s\t%s\t%p\n",current->name,current->phone,current->next);
   }
+  //printf("ret %s\t%s\t%p\n",ret->name,ret->phone,ret->next);
+  entry *p=ret;
+ 	for(int i=0;p!=NULL;i++)
+  {  	
+  	//printf("p %p\t%s\t%s\t%p\n",p,p->name,p->phone,p->next);
+  	p=p->next;
+  }
+  free(p);
+  //free(tmp);
+  //free(current);
   return ret;
 }
 
@@ -286,6 +310,8 @@ int delete(FILE *db_file, char *name)
     }
   }
   write_all_entries(base);
+  //free(prev);
+  free(p);
   free_entries(base);
   return deleted;
 }
@@ -293,18 +319,25 @@ int delete(FILE *db_file, char *name)
 int search( FILE *db_file, char* name)
 {
 	int found=0;
+	//printf("in search 1\n");
 	entry *p=load_entries(db_file);
-	while(p!=NULL);
+	entry *base=p;
+	//printf("in search 2\n");
+	//printf("p %s\t%s\t%p\n",p->name,p->phone,base->next);
+	while(p!=NULL)
 	{
-		if(p->name==name)
+		//printf("in search 3\n");
+		if(strcmp(p->name,name)==0)
 		{
-			printf("%s",p->phone);
+			//printf("IN\n");
+			printf("%s\n",p->phone);
 			found=1;
+			break;
 		}
 		else
 			p=p->next;
 	}
-	free(p);
+	free_entries(base);
 	return found;
 }
 
